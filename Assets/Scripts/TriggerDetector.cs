@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class TrriggerDetector : MonoBehaviour
+public class TriggerDetector : MonoBehaviour
 {
     // This method is called when another collider enters the trigger collider attached to the object where this script is also attached
     [SerializeField] private UnityEvent OnTriggerEnterEvent;
