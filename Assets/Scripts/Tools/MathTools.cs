@@ -14,7 +14,7 @@ public static class MathTools
 
     public static float GetRotationAngle2D(Vector2 from, Vector2 to)
     {
-        Vector2 direction = to - from;
+        Vector2 direction = GetDirection(from, to);
         return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
 }
