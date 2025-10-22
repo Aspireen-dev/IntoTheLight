@@ -18,25 +18,6 @@ public class InputManager : MonoBehaviour
 
     #endregion Private variables
 
-    #region Singleton pattern
-
-    public static InputManager Instance { get; private set; }
-
-    #endregion Singleton pattern
-
-    private void Awake()
-    {
-        // Ensure only one instance of InputManager exists (Singleton pattern)
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
     private void OnEnable()
     {
         _dragAction.action.started += OnDragStarted;
@@ -59,16 +40,22 @@ public class InputManager : MonoBehaviour
 
     private void OnDragStarted(InputAction.CallbackContext context)
     {
-        _isDragging = true;
-        _startDraggingPosition = GetInputPosition();
-        _player.StartAiming();
+        if (_player.CanAim)
+        {
+            _isDragging = true;
+            _startDraggingPosition = GetInputPosition();
+            _player.StartAiming();
+        }
     }
 
     private void OnDragCanceled(InputAction.CallbackContext context)
     {
-        _isDragging = false;
-        _startDraggingPosition = Vector2.zero;
-        _player.StopAiming();
+        if (_isDragging)
+        {
+            _isDragging = false;
+            _startDraggingPosition = Vector2.zero;
+            _player.StopAiming();
+        }
     }
 
     private Vector2 GetInputPosition()

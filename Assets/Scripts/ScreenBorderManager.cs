@@ -14,8 +14,8 @@ public class ScreenBorderManager : MonoBehaviour
         Camera mainCamera = Camera.main;
 
         // Calculate screen dimensions in world units
-        float screenHeight = 2f * mainCamera.orthographicSize;
-        float screenWidth = screenHeight * mainCamera.aspect;
+        float screenHeight = ScreenTools.GetScreenHeight(mainCamera);
+        float screenWidth = ScreenTools.GetScreenWidth(mainCamera);
 
         // Fit borders to screen edges
         FitBorder(_topScreenBorder, screenWidth, _borderThickness, new Vector2(0f, screenHeight / 2f));

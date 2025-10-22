@@ -8,7 +8,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] private LineRenderer2D _lineRenderer2D;
     [SerializeField] private GameObject _photonVisual;
+    [SerializeField] private GameObject _trailRenderer;
     [SerializeField] private ParticleSystem _explosionParticleSystem;
+    [SerializeField] private StartPlacementManager _startPlacementManager;
 
     #endregion Serialized fields
 
@@ -16,17 +18,23 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D _rigidbody2D;
 
-    private Vector2 _startPosition = new Vector2(-6, 0);
     private Vector3 _aimingDirectionNormalized;
 
     private float _impulseForce = 7f;
 
     #endregion Private variables
 
+    #region Public properties
+
+    public bool CanAim { get; private set; }
+
+    #endregion Public properties
+
     void Start()
     {
-        _rigidbody2D = GetComponent<Rigidbody2D>();
         _lineRenderer2D.enabled = false;
+
+        _rigidbody2D = GetComponent<Rigidbody2D>();
 
         ResetPosition();
     }
@@ -34,7 +42,7 @@ public class Player : MonoBehaviour
     public void OnTargetTriggered()
     {
         // TODO: Add score increment logic here
-        StopSpeed();
+        StopMovement();
         ResetPosition();
     }
 
@@ -44,10 +52,10 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Enables the aiming functionality by activating the visual representation of the aim.
+    /// Enables the aiming functionality by activating the visual aiming indicator.
     /// </summary>
-    /// <remarks>This method enables the 2D line renderer, which is used to visually indicate the aiming
-    /// direction. Ensure that the line renderer is properly configured before calling this method.</remarks>
+    /// <remarks>This method disables the ability to aim again until the current aiming process is completed.
+    /// The visual indicator for aiming is displayed by enabling the associated 2D line renderer.</remarks>
     public void StartAiming()
     {
         _lineRenderer2D.enabled = true;
@@ -79,6 +87,7 @@ public class Player : MonoBehaviour
     public void StopAiming()
     {
         _lineRenderer2D.enabled = false;
+        CanAim = false;
         Launch();
     }
 
@@ -89,6 +98,7 @@ public class Player : MonoBehaviour
     /// and impulse force magnitude. After the force is applied, the aiming direction is reset to zero.</remarks>
     private void Launch()
     {
+        _trailRenderer.SetActive(true);
         _rigidbody2D.AddForce(_aimingDirectionNormalized * _impulseForce, ForceMode2D.Impulse);
         _aimingDirectionNormalized = Vector2.zero;
     }
@@ -104,7 +114,7 @@ public class Player : MonoBehaviour
     private IEnumerator Explode()
     {
         // Stop the photon movement and hide its visual
-        StopSpeed();
+        StopMovement();
         HidePhotonVisual();
 
         // Play explosion particle system
@@ -115,25 +125,29 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Resets the object's position to its initial state and reactivates its associated components.
+    /// Resets the object's position and state to its initial configuration.
     /// </summary>
-    /// <remarks>This method restores the object's position to its starting point, ensures the Rigidbody2D is
-    /// active,  and re-enables the visual representation of the object. It is typically used to reset the object 
-    /// during gameplay or after specific events.</remarks>
+    /// <remarks>This method repositions the object to its starting position, reactivates its visual
+    /// representation, and ensures it is ready for interaction. It also enables aiming functionality.</remarks>
     private void ResetPosition()
     {
-        transform.position = _startPosition;
+        _startPlacementManager.ResetPlayerPosition();
         _rigidbody2D.WakeUp();
         _photonVisual.SetActive(true);
+        CanAim = true;
     }
 
     /// <summary>
-    /// Stops all movement of the object by setting its linear and angular velocity to zero.
+    /// Stops all movement of the object by disabling its trail renderer, setting its linear and angular velocities to
+    /// zero, and putting the Rigidbody2D to sleep.
     /// </summary>
-    /// <remarks>This method halts the object's motion and puts the associated Rigidbody2D into a sleep state.
-    /// It is typically used to immediately stop the object in scenarios where all movement must cease.</remarks>
-    private void StopSpeed()
+    /// <remarks>This method ensures that the object comes to a complete stop and remains stationary until
+    /// further action is taken.  It is typically used to halt motion in scenarios where the object should no longer
+    /// move or interact with physics.</remarks>
+    private void StopMovement()
     {
+        _trailRenderer.SetActive(false);
+
         _rigidbody2D.linearVelocity = Vector2.zero;
         _rigidbody2D.angularVelocity = 0f;
         _rigidbody2D.Sleep();
