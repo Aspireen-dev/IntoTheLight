@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MainPanel : BasePanel
+public class MenuPanel : BasePanel
 {
     [SerializeField] private BasePanel _nextPanel;
 

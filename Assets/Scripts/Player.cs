@@ -1,9 +1,15 @@
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Player : MonoBehaviour
 {
+    #region UnityEvents
+
+    public UnityEvent OnLevelPassedEvent;
+
+    #endregion UnityEvents
+
     #region Serialized fields
 
     [SerializeField] private LineRenderer2D _lineRenderer2D;
@@ -41,12 +47,18 @@ public class Player : MonoBehaviour
 
     public void OnTargetTriggered()
     {
-        // TODO: Add score increment logic here
         StopMovement();
-        ResetPosition();
+
+        PlayerSettingsManager.UnlockNextLevel();
+        OnLevelPassedEvent?.Invoke();
     }
 
     public void OnScreenBorderTriggered()
+    {
+        StartCoroutine(Explode());
+    }
+
+    public void OnObstacleTriggered()
     {
         StartCoroutine(Explode());
     }
@@ -73,10 +85,9 @@ public class Player : MonoBehaviour
     public void Aim(Vector2 startDraggingPosition, Vector2 currentDraggingPosition)
     {
         float angle = MathTools.GetRotationAngle2D(startDraggingPosition, currentDraggingPosition);
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        transform.rotation = Quaternion.Euler(0, 0, 180 + angle);
 
         _aimingDirectionNormalized = MathTools.GetDirectionNormalized(currentDraggingPosition, startDraggingPosition);
-        _lineRenderer2D.DrawLine(transform.position, _aimingDirectionNormalized);
     }
 
     /// <summary>

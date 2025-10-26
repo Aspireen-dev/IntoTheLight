@@ -1,12 +1,8 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SelectLevelPanel : BasePanel
 {
-    private const string LEVEL_SCENE_PREFIX = "Level_";
-    private const string UNLOCKED_LEVELS_KEY = "UnlockedLevels";
-
     [SerializeField] private Button[] levelButtons;
 
     private void Start()
@@ -16,7 +12,7 @@ public class SelectLevelPanel : BasePanel
 
     public void EnableLevelButtons()
     {
-        int unlockedLevels = PlayerPrefs.GetInt(UNLOCKED_LEVELS_KEY, 1);
+        int unlockedLevels = PlayerSettingsManager.UnlockedLevels;
 
         for (int i = 0; i < levelButtons.Length; i++)
         {
@@ -27,7 +23,6 @@ public class SelectLevelPanel : BasePanel
 
     public void OnLevelButtonClick(int level)
     {
-        string sceneName = LEVEL_SCENE_PREFIX + level;
-        SceneManager.LoadScene(sceneName);
+        GlobalSceneManager.LoadLevel(level);
     }
 }
