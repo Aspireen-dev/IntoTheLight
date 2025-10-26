@@ -10,13 +10,17 @@ public class FadeInAndOutText : MonoBehaviour
     [SerializeField] private float _fadeOutDuration = 1.5f;
     [SerializeField] private float _visibleDuration = 2f;
 
+    [SerializeField] private bool fadeOutOnStart = true;
+
+    public bool IsFadedIn => _text.color.a >= 1f;
+
     void Start()
     {
         _text = GetComponent<TMP_Text>();
-        StartFadeSequence();
+        StartFadeInSequence();
     }
 
-    void StartFadeSequence()
+    public void StartFadeInSequence()
     {
         StartCoroutine(FadeIn());
     }
@@ -39,8 +43,16 @@ public class FadeInAndOutText : MonoBehaviour
         color.a = 1f;
         _text.color = color;
 
-        yield return new WaitForSeconds(_visibleDuration);
+        if (fadeOutOnStart)
+        {
+            yield return new WaitForSeconds(_visibleDuration);
 
+            StartFadeOutSequence();
+        }
+    }
+
+    public void StartFadeOutSequence()
+    {
         StartCoroutine(FadeOut());
     }
 
